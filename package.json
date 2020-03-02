@@ -1,10 +1,10 @@
 {
-  "name": "iterate-parallel",
+  "name": "iterate",
   "version": "1.0.0",
-  "description": "Simple function to iterate over many iterables at once in parallel.",
+  "description": "Simple functions to iterate over many iterables at once.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node example.js"
   },
   "keywords": [],
   "author": "Sebastian Banaszkiewicz",
