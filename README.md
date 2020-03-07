@@ -16,7 +16,7 @@ In `for...of` loop, on each iteration an array will be yielded with current valu
 The `parallel` function is equivalent to something like this:
 
 ```js
-for (const i = 0; i < longestArray.length; i++)
+for (let i = 0; i < longestArray.length; i++)
   const yielded = [
     arr1[i],
     arr2[i],
