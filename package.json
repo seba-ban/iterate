@@ -4,9 +4,12 @@
   "description": "Simple functions to iterate over many iterables at once.",
   "main": "index.js",
   "scripts": {
-    "test": "node example.js"
+    "test": "mocha"
   },
   "keywords": [],
   "author": "Sebastian Banaszkiewicz",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^7.1.1"
+  }
 }
