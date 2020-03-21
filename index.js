@@ -1,44 +1,16 @@
-function parallel(...args) {
-  checkIfAllIterable(args);
+const getHandlerFactory = require('./lib/get-proxy-handler')
+const parallelGenerators = require('./lib/parallel')
+const nestedGenerators = require('./lib/nested')
 
-  return {
-    *[Symbol.iterator]() {
-      const iterators = args.map(arg => arg[Symbol.iterator]());
-      while (true) {
-        const next = iterators.map(el => el.next());
-        if (next.every(el => el.done)) return;
-        yield next.map(el => el.value);
-      }
-    }
-  }
-}
+// return a proxy that will create an iterator when needed
+// once iterator is created, it's set on the object ready to be reused
+const parallel = (...args) => new Proxy({}, {
+  get: getHandlerFactory(args, parallelGenerators)
+})
 
-function nested(...args) {
-  checkIfAllIterable(args);
-
-  return {
-    *[Symbol.iterator]() {
-
-      yield* customIter(args[0], [], args.slice(1));
-
-      function* customIter(iterable, currArr, remaining) {
-        const ownIndex = currArr.length;
-        for (const el of iterable) {
-          currArr[ownIndex] = el;
-          if (remaining.length > 0)
-            yield* customIter(remaining[0], currArr.slice(), remaining.slice(1))
-          else yield currArr;
-        }
-      }
-    }
-  }
-}
-
-function checkIfAllIterable(args) {
-  for (const arg of args)
-    if (!arg[Symbol.iterator])
-      throw new TypeError(`${arg} is not iterable (cannot read property Symbol(Symbol.iterator))`);
-}
+const nested = (...args) => new Proxy({}, {
+  get: getHandlerFactory(args, nestedGenerators)
+})
 
 module.exports = {
   parallel,

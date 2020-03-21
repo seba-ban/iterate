@@ -1,4 +1,4 @@
-Simple functions to iterate over many iterables at once.
+An exercise to create simple functions to iterate over many iterables at once.
 
 An `Object` with two functions is exported.
 
@@ -9,9 +9,11 @@ const { parallel, nested } = require("./index");
 * parallel(...args)
 * nested(...args)
 
-Both return an `Object` with a generator `Symbol.iterator` function, so it can be used in `for...of` loops.
+Both return an empty proxied object which will create generators for `Symbol.iterator` and `Symbol.asyncIterator` only when they are required, so they can be used in `for...of` and `for await...of` loops.
 
-In `for...of` loop, on each iteration an array will be yielded with current values for the iterables.
+On each iteration an array will be yielded with current values for the iterables.
+
+Any iterables and generators are allowed as args.
 
 The `parallel` function is equivalent to something like this:
 
@@ -21,7 +23,6 @@ for (let i = 0; i < longestArray.length; i++)
     arr1[i],
     arr2[i],
     arr3[i],
-    ...
   ]
 ```
 
@@ -66,3 +67,70 @@ for (const [fromE, fromF, fromG] of nested(e, f, g))
 // 1 3 4
 // 1 3 5
 ```
+
+async:
+```js
+const sleep = require('util').promisify(setTimeout)
+
+async function* a() {
+  for (let i = 0; i < 3; i++) {
+    await sleep(500)
+    yield i
+  }
+}
+
+async function* b() {
+  for (let i = 3; i < 6; i++) {
+    await sleep(500)
+    yield i
+  }
+}
+
+const iterable = nested(a, b)
+
+main()
+async function main() {
+  for await (const el of iterable)
+    console.log(el)
+}
+
+// [ 0, 3 ]
+// [ 0, 4 ]
+// [ 0, 5 ]
+// [ 1, 3 ]
+// [ 1, 4 ]
+// [ 1, 5 ]
+// [ 2, 3 ]
+// [ 2, 4 ]
+// [ 2, 5 ]
+```
+
+Difference between passing a generator directly and passing it's returned value:
+
+```js
+function* test() {
+  yield 1
+  yield 2
+}
+
+const iterator = parallel(test, test())
+
+console.log('first run')
+
+for (const el of iterator)
+  console.log(el)
+
+console.log('second run')
+
+for (const el of iterator)
+  console.log(el)
+
+// first run
+// [ 1, 1 ]
+// [ 2, 2 ]
+// second run
+// [ 1, undefined ]
+// [ 2, undefined ]
+```
+
+Node >=13.10 required for running tests.
